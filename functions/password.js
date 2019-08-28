@@ -113,50 +113,50 @@ new Promise((reject , resolve) => {
     
 });
     
-//    exports.resetPasswordFinish = (email, token, password) =>
-//     new Promise((resolve, reject) => {
-//         user.find({email: email})
-//         .then(users => {
-//             let user = user[0];
-//             const diff = new Date() - new Date(user.temp_password_time);
-//             const seconds = Math.floor(diff/1000);
-//             console.log(`Seconds: ${seconds}`);
+   exports.resetPasswordFinish = (email, token, password) =>
+    new Promise((resolve, reject) => {
+        user.find({email: email})
+        .then(users => {
+            let user = user[0];
+            const diff = new Date() - new Date(user.temp_password_time);
+            const seconds = Math.floor(diff/1000);
+            console.log(`Seconds: ${seconds}`);
 
-//             if(seconds < 120) {
-//                 return user;
-//             } else {
-//                 reject({
-//                     status: 401,
-//                     message: "Time Out!, Try Again"
-//                 });
-//             }
-//         })
-//         .then(user => {
-//             if(bcrypt.compareSync(token, user.temp_password)) {
-//             const salt = bcrypt.genSaltSync(10);
-//             const hash = bcrypt.hashSync(password, salt);
-//             user.hashed_password = hash;
-//             user.temp_password = undefined;
-//             user.temp_password_time = undefined;
+            if(seconds < 120) {
+                return user;
+            } else {
+                reject({
+                    status: 401,
+                    message: "Time Out!, Try Again"
+                });
+            }
+        })
+        .then(user => {
+            if(bcrypt.compareSync(token, user.temp_password)) {
+            const salt = bcrypt.genSaltSync(10);
+            const hash = bcrypt.hashSync(password, salt);
+            user.hashed_password = hash;
+            user.temp_password = undefined;
+            user.temp_password_time = undefined;
 
-//             return user.save();
+            return user.save();
 
-//             } else {
-//                 reject({
-//                     status: 401,
-//                     message: "Invalid Token"
-//                 })
-//             }
-//         })
-//         .then(user => resolve({
-//             status: 401,
-//             message: "Password Changed Successfully"
-//         }))
-//         .catch(err => reject({
-//             status: 500,
-//             message: "Internal Server Error"
-//         }));
-//     });
+            } else {
+                reject({
+                    status: 401,
+                    message: "Invalid Token"
+                })
+            }
+        })
+        .then(user => resolve({
+            status: 401,
+            message: "Password Changed Successfully"
+        }))
+        .catch(err => reject({
+            status: 500,
+            message: "Internal Server Error"
+        }));
+    });
 
 
             
