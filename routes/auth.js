@@ -128,7 +128,7 @@ router.post('/users/:id/password', function (req, res) {
 });
 
 function checkToken(req) {
-    const token = req.headers['x-acess-token'];
+    const token = req.headers['x-access-token'];
     if (token) {
         try {
             var decoded = jwt.verify(token, config.secret);

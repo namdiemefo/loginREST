@@ -50,18 +50,32 @@ new Promise((reject , resolve) => {
             let user = users[0];
             const salt = bcrypt.genSaltSync(10);
             const hash = bcrypt.hashSync(random, salt);
+            console.log(hash);
+            user.update({
+                temp_password: hash,
+                temp_password_time: Date.now() + 360000,
+            })
 
-            user.temp_password = hash;
-            user.temp_password_time = new Date()
+            // user.temp_password = hash;
+            // user.temp_password_time = new Date();
 
-            return user.save();
+            // return user.save();
         }
     })
     .then(user => {
-        const transporter = nodemailer.createTransport(`smtps://${config.email}:${config.password}@smtp.yahoo.com`);;
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            pool: true,
+            auth: {
+                user: 'naemoapp@gmail.com',
+                pass: 'Tolunnamdi17'
+            }
+        });
 
         const mailOptions = {
-            from: `"${config.name}" <${config.email}>`,
+            from: `Naemoapp@gmail.com`,
             to: email,
             subject: 'Reset Password Request',
             html: `Hello,
@@ -73,7 +87,14 @@ new Promise((reject , resolve) => {
     Thanks,
     Nnamdi.`
         };
-        return transporter.sendMail(mailOptions);
+        return transporter.sendMail(mailOptions, function(err, response){
+            if(err) {
+                console.log('there was an error: ' + err);
+            } else {
+                console.log('there is the res: ' + response);
+            }
+            transporter.close();
+        });
     })
     .then(info => {
         console.log(info);
@@ -88,54 +109,54 @@ new Promise((reject , resolve) => {
                     status: 500,
                     message: 'Internal Server Error'
                 });
-            })
+            });
     
-})
+});
     
-    exports.resetPasswordFinish = (email, token, password) =>
-    new Promise((resolve, reject) => {
-        user.find({email: email})
-        .then(users => {
-            let user = user[0];
-            const diff = new Date() - new Date(user.temp_password_time);
-            const seconds = Math.floor(diff/1000);
-            console.log(`Seconds: ${seconds}`);
+//    exports.resetPasswordFinish = (email, token, password) =>
+//     new Promise((resolve, reject) => {
+//         user.find({email: email})
+//         .then(users => {
+//             let user = user[0];
+//             const diff = new Date() - new Date(user.temp_password_time);
+//             const seconds = Math.floor(diff/1000);
+//             console.log(`Seconds: ${seconds}`);
 
-            if(seconds < 120) {
-                return user;
-            } else {
-                reject({
-                    status: 401,
-                    message: "Time Out!, Try Again"
-                });
-            }
-        })
-        .then(user => {
-            if(bcrypt.compareSync(token, user.temp_password)) {
-            const salt = bcrypt.genSaltSync(10);
-            const hash = bcrypt.hashSync(password, salt);
-            user.hashed_password = hash;
-            user.temp_password = undefined;
-            user.temp_password_time = undefined;
+//             if(seconds < 120) {
+//                 return user;
+//             } else {
+//                 reject({
+//                     status: 401,
+//                     message: "Time Out!, Try Again"
+//                 });
+//             }
+//         })
+//         .then(user => {
+//             if(bcrypt.compareSync(token, user.temp_password)) {
+//             const salt = bcrypt.genSaltSync(10);
+//             const hash = bcrypt.hashSync(password, salt);
+//             user.hashed_password = hash;
+//             user.temp_password = undefined;
+//             user.temp_password_time = undefined;
 
-            return user.save();
+//             return user.save();
 
-            } else {
-                reject({
-                    status: 401,
-                    message: "Invalid Token"
-                })
-            }
-        })
-        .then(user => resolve({
-            status: 401,
-            message: "Password Changed Successfully"
-        }))
-        .catch(err => reject({
-            status: 500,
-            message: "Internal Server Error"
-        }));
-    });
+//             } else {
+//                 reject({
+//                     status: 401,
+//                     message: "Invalid Token"
+//                 })
+//             }
+//         })
+//         .then(user => resolve({
+//             status: 401,
+//             message: "Password Changed Successfully"
+//         }))
+//         .catch(err => reject({
+//             status: 500,
+//             message: "Internal Server Error"
+//         }));
+//     });
 
 
             

@@ -16,7 +16,7 @@ var userSchema = mongoose.Schema({
     },
     hashed_password: {
         type: String,
-        required: 3,
+        required: true,
         minlength: 3,
         maxlength: 255
     },
